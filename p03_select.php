@@ -63,9 +63,14 @@ if ($status==false) {
     $view .= '</tr>'; 
     $view .= '</table>';
     $view .= '<p class="lat-lon">'.'緯度:' . $lat . '／経度:' . $lon . '</p>';
-    $view .= '<button id="search" type=”button” onclick="clickAlert()">'.'検索'.'</button>';
+    $view .= '<input type="hidden" value="' . $lat . '">';
+    $view .= '<input type="hidden" value="' . $lon . '">';
+    //$view .= '<button id="search" type=”button” onclick="clickAlert()">'.'検索'.'</button>';
+    $view .= '<button id="search" type="button" onclick="getLonLatData(this)">'.'現在地からの経路検索'.'</button>';
     $view .= '<button>'.'<a href="p04_detail.php?id=' . h($result['id']).'">'.'更新'.'</a>'.'</button>';
-    $view .= '<button>'.'<a href="p06_delete.php?id=' . h($result['id']).'">'.'削除'.'</a>'.'</button>';
+    //$view .= '<button>'.'<a href="p06_delete.php?id=' . h($result['id']).'">'.'削除'.'</a>'.'</button>';
+    //$view .= '<button onclick="confirmDelete(' . h($result['id']) . ')">' . '削除' . '</button>';
+    $view .= '<button onclick="confirmDelete(' . h($result['id']) . ', \'' . h($result['image01']) . '\', \'' . h($result['image02']) . '\')">' . '削除' . '</button>';
     $view .= '</div>';
   }
 }
@@ -110,8 +115,8 @@ Microsoft.Maps.loadModule(
     });
     directionsManager.addWaypoint(startWaypoint, 0);
     
-    let lat = <?= $lat ?> // 最終レコードの $lat を参照していることはわかった
-    let lon = <?= $lon ?> // 最終レコードの $lon を参照していることはわかった
+    //let lat = <?= $lat ?> // 最終レコードの $lat を参照していることはわかった
+    //let lon = <?= $lon ?> // 最終レコードの $lon を参照していることはわかった
     console.log(lat,'初期表示内容でDBの最終レコードlat、phpファイルの115行目');
     console.log(lon,'初期表示内容でDBの最終レコードlon、phpファイルの116行目');
     
@@ -136,7 +141,21 @@ function (error) {
   );
 }
 }
+function getLonLatData(e){
+  alert("現在地と目的地の検索を開始します！！！"); // これは動く
+  console.dir(e,'147行目');
+  console.dir(e.parentNode);
+  const lat = e.parentNode.childNodes[10].defaultValue
+  const lon = e.parentNode.childNodes[11].defaultValue
+  console.log("151行目");
+  console.log(lat,'152行目');
+  console.dir(e.parentNode.childNodes[5].innerText);
 
+// ここで取得した緯度経度をGetMap関数に渡してブラウザに描画
+GetMap(lat, lon);
+}
+
+/*
 function clickAlert() {
   alert("ボタンがクリックされました！"); // これは動く
   lat = $(this).closest("#post-data").find(".lat-lon").data("lat");
@@ -144,6 +163,7 @@ function clickAlert() {
   console.log(lat,'phpファイルの144行目'); // undefinedになる
   //GetMap(lat, lon);
 }
+*/
 
 /*　上のclickAlertのコードとの違いがわからなくて、動かない部分
 $("#search").on("click", function () {
@@ -154,6 +174,23 @@ $("#search").on("click", function () {
   GetMap(lat, lon);
 });
 */
+
+function confirmDelete(id, image01, image02) {
+  if (window.confirm("本当に削除して大丈夫ですか？")) {
+    // 画像とデータベースの両方を削除するためのリンクへリダイレクト
+    window.location.href = "p06_delete.php?id=" + id + "&image01=" + image01 + "&image02=" + image02;
+  }
+}
+
+/*
+function confirmDelete(id) {
+  if (window.confirm("本当に削除して大丈夫ですか？")) {
+    // 削除処理を実行するためのリンクへリダイレクトするなど、適切な処理を追加してください
+    window.location.href = "p06_delete.php?id=" + id;
+  }
+}
+*/
+
 </script>
 
 <!-- Main[Start] -->
